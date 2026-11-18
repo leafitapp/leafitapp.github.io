@@ -106,31 +106,39 @@
   let waveId = 0;
   class Wave {
     constructor(svg, opts) {
-      this.svg = svg;
+      const el = document.createElement("div");
+      el.className = svg.getAttribute("class");
+      el.setAttribute("aria-hidden", "true");
+      svg.replaceWith(el);
+      this.el = el;
       this.o = opts;
       this.value = 0;
-      const id = "wc" + (++waveId);
-      svg.innerHTML = `<defs><clipPath id="${id}"><rect x="0" y="-20" width="0" height="60"/></clipPath></defs>` +
-        `<path class="t"/><circle class="s"/>` +
-        `<g clip-path="url(#${id})"><g class="amp"><path class="w"/></g></g>`;
-      this.rect = svg.querySelector("rect");
-      this.track = svg.querySelector(".t");
-      this.stop = svg.querySelector(".s");
-      this.wave = svg.querySelector(".w");
-      this.amp = svg.querySelector(".amp");
+      el.style.setProperty("--sw", opts.sw + "px");
+      el.innerHTML = '<svg class="wt"><path class="t"/><circle class="s"/></svg><div class="wclip"><div class="wamp"><svg class="wmove"><path class="w"/></svg></div></div>';
+      this.track = el.querySelector(".t");
+      this.stop = el.querySelector(".s");
+      this.trackSvg = el.querySelector(".wt");
+      this.clip = el.querySelector(".wclip");
+      this.ampEl = el.querySelector(".wamp");
+      this.moveSvg = el.querySelector(".wmove");
+      this.wave = el.querySelector(".w");
       this.build();
     }
     build() {
-      const W = Math.max(1, this.svg.clientWidth);
-      const H = Math.max(1, this.svg.clientHeight);
+      const W = Math.max(1, this.el.clientWidth);
+      const H = Math.max(1, this.el.clientHeight);
       const { wl, amp } = this.o;
       const c = H / 2;
       this.W = W;
       this.c = c;
-      this.svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-      this.svg.style.setProperty("--wl", wl + "px");
+      const MW = Math.ceil(W + wl * 2);
+      this.el.style.setProperty("--wl", wl + "px");
+      this.ampEl.style.width = MW + "px";
+      this.moveSvg.setAttribute("viewBox", "0 0 " + MW + " " + H);
+      this.moveSvg.style.width = MW + "px";
+      this.trackSvg.setAttribute("viewBox", "0 0 " + W + " " + H);
       const pts = [];
-      for (let x = -wl; x <= W + wl; x += 1.5) pts.push(`${x.toFixed(1)},${(c + amp * Math.sin((x / wl) * Math.PI * 2)).toFixed(2)}`);
+      for (let x = 0; x <= MW; x += 1.5) pts.push(x.toFixed(1) + "," + (c + amp * Math.sin((x / wl) * Math.PI * 2)).toFixed(2));
       this.wave.setAttribute("d", "M" + pts.join("L"));
       this.render();
     }
@@ -139,12 +147,11 @@
       const end = this.o.track ? this.W - sw : this.W;
       const p = Math.max(0, Math.min(1, this.value));
       const px = p * end;
-      this.rect.setAttribute("width", px.toFixed(1));
+      this.clip.style.width = px.toFixed(1) + "px";
       if (this.o.track) {
-        const gap = sw * 2;
-        const from = Math.min(end, px + gap);
-        this.track.setAttribute("d", from < end - 1 ? `M${from.toFixed(1)} ${this.c}H${(end - sw).toFixed(1)}` : "");
-        this.stop.setAttribute("cx", (end - sw / 2 + sw / 2).toFixed(1));
+        const from = Math.min(end, px + sw * 2);
+        this.track.setAttribute("d", from < end - sw ? "M" + from.toFixed(1) + " " + this.c + "H" + (end - sw).toFixed(1) : "");
+        this.stop.setAttribute("cx", end.toFixed(1));
         this.stop.setAttribute("cy", this.c);
         this.stop.setAttribute("r", (sw / 2).toFixed(1));
         this.stop.style.opacity = p > 0.985 ? 0 : 1;
@@ -163,14 +170,13 @@
       };
       requestAnimationFrame(step);
     }
-    setAmp(a) { this.amp.style.setProperty("--amp", a); }
+    setAmp(a) { this.ampEl.style.setProperty("--amp", a); }
   }
   const small = () => innerWidth < 720;
   const waves = [];
   const mkWave = (svg, opts) => { const w = new Wave(svg, opts); waves.push(w); return w; };
   const progressWave = mkWave($(".progress .wv"), { wl: small() ? 22 : 28, amp: 2.4, sw: 3, track: true });
-  progressWave.svg.classList.add("prog-wave");
-  const headWaves = $$(".wv.wave").map(svg => mkWave(svg, { wl: 18, amp: 3, sw: 3.5, track: false }));
+    const headWaves = $$(".wv.wave").map(svg => mkWave(svg, { wl: 18, amp: 3, sw: 3.5, track: false }));
   const liveWave = $(".wv.wavy") ? mkWave($(".wv.wavy"), { wl: small() ? 24 : 30, amp: 3.6, sw: 5, track: true }) : null;
   let resizeT = 0;
   addEventListener("resize", () => {
@@ -568,6 +574,19 @@
   const ios = !/Android/i.test(ua) && (/iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1 && /Safari/.test(ua) && !/Chrome|Chromium|Edg/.test(ua)));
   if (ios) { const n = $(".ios-note"); if (n) n.hidden = false; }
 
+  if ("IntersectionObserver" in window) {
+    const pauser = new IntersectionObserver(entries => {
+      entries.forEach(en => {
+        en.target.classList.toggle("off", !en.isIntersecting);
+        en.target.querySelectorAll("svg").forEach(svg => {
+          if (!svg.pauseAnimations || !svg.querySelector("animate")) return;
+          if (en.isIntersecting) svg.unpauseAnimations(); else svg.pauseAnimations();
+        });
+      });
+    }, { rootMargin: "80px 0px" });
+    $$(".hero, .get, .live, #spaces, .numbers").forEach(el => pauser.observe(el));
+  }
+
   const targets = $$(".num, .act, .card, .tile, .formula, .private, .design, .live, details, .get, .head, .qr");
   const onSeen = el => {
     el.classList.add("in");
@@ -577,7 +596,7 @@
       const shape = $(".shape", el);
       if (shape) setTimeout(() => { morph(shape); setTimeout(() => morph(shape, true), 1000); }, 500);
     }
-    $$(".wv.wave", el).forEach(svg => { const w = headWaves.find(h => h.svg === svg); if (w) w.tween(1, 1300); });
+    $$(".wv.wave", el).forEach(svg => { const w = headWaves.find(h => h.el === svg); if (w) w.tween(1, 1300); });
     if (el === live) startLive();
   };
   if ("IntersectionObserver" in window && !calm) {
