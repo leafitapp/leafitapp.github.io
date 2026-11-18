@@ -3,20 +3,33 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Leafit · a calm journal for workouts, meals, water and sleep</title>
-<meta name="description" content="Leafit is a free, open-source Android app: 50 workout types with live GPS routes, a sleep tracker with alarms, meals, recipes, water, body progress and day notes. No account, no ads, everything stays on your phone.">
+<title>Leafit: free workout, sleep, meal and water tracker for Android</title>
+<meta name="description" content="Leafit is a free, open-source Android app: workout tracker with live GPS routes, sleep tracker with alarms, calorie and macro diary, water reminders and day notes. No account, no ads, works offline.">
 <meta name="theme-color" content="#F5FBF6" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#111412" media="(prefers-color-scheme: dark)">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<meta name="author" content="Soluv">
+<meta name="keywords" content="Leafit, Android fitness tracker, workout tracker GPS, sleep tracker, snoring recorder, calorie counter, water reminder, open source fitness app, no account, no ads, offline">
 <link rel="canonical" href="https://leafitapp.github.io/">
+<link rel="alternate" hreflang="en" href="https://leafitapp.github.io/">
+<link rel="alternate" hreflang="x-default" href="https://leafitapp.github.io/">
+<link rel="sitemap" type="application/xml" href="sitemap.xml">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Leafit 2.5 · your day, your rhythm">
+<meta property="og:site_name" content="Leafit">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="Leafit: free workout, sleep, meal and water tracker for Android">
 <meta property="og:description" content="Workouts, meals, water, sleep and notes in one calm Android app. No account, no ads, open source.">
 <meta property="og:url" content="https://leafitapp.github.io/">
 <meta property="og:image" content="https://leafitapp.github.io/assets/og.jpg">
 <meta property="og:image:width" content="1280">
 <meta property="og:image:height" content="640">
+<meta property="og:image:alt" content="Leafit app screens: home, live GPS workout and sleep tracker">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Leafit: free workout, sleep, meal and water tracker for Android">
+<meta name="twitter:description" content="Workouts with live GPS, a sleep tracker with alarms, meals and water in one calm app. No account, no ads, open source.">
+<meta name="twitter:image" content="https://leafitapp.github.io/assets/og.jpg">
+<script type="application/ld+json">[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Leafit","alternateName":"Leafit Android","description":"Free open-source Android app for workouts with live GPS routes, sleep tracking with alarms, meals and macros, water reminders, challenges and day notes. No account, no ads, works offline.","applicationCategory":"HealthApplication","applicationSubCategory":"Fitness tracker","operatingSystem":"Android 8.0+","softwareVersion":"2.5.0","downloadUrl":"https://github.com/So1uv/Leafit/releases/latest/download/Leafit.apk","installUrl":"https://github.com/So1uv/Leafit/releases/latest","codeRepository":"https://github.com/So1uv/Leafit","license":"https://www.gnu.org/licenses/gpl-3.0.html","isAccessibleForFree":true,"inLanguage":["en","uk","ru"],"url":"https://leafitapp.github.io/","image":"https://leafitapp.github.io/assets/og.jpg","screenshot":["https://leafitapp.github.io/screenshots/home.webp","https://leafitapp.github.io/screenshots/gps-live.webp","https://leafitapp.github.io/screenshots/sleep-tracker.webp","https://leafitapp.github.io/screenshots/wrapped.webp","https://leafitapp.github.io/screenshots/meals.webp"],"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Person","name":"Soluv","url":"https://github.com/So1uv"}},{"@context":"https://schema.org","@type":"WebSite","name":"Leafit","url":"https://leafitapp.github.io/"},{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is it really free?","acceptedAnswer":{"@type":"Answer","text":"Yes. No subscription, no premium tier, no ads. Leafit is open source under GPL-3.0."}},{"@type":"Question","name":"How do I install the APK?","acceptedAnswer":{"@type":"Answer","text":"Download Leafit.apk on your phone and open it. Android will ask you once to allow installs from your browser or file manager."}},{"@type":"Question","name":"Does Leafit need an account?","acceptedAnswer":{"@type":"Answer","text":"No. There is no account and no server. Everything is stored in a local database on your phone."}},{"@type":"Question","name":"Which Android versions does Leafit support?","acceptedAnswer":{"@type":"Answer","text":"Android 8.0 and newer. It is tested on Samsung Galaxy S10, Xiaomi 15 and Pixel 7."}},{"@type":"Question","name":"Does the sleep tracker record audio?","acceptedAnswer":{"@type":"Answer","text":"Only if you turn the tracker on. Audio is analyzed on the device and only short clips of louder moments are kept, stored locally."}}]}]</script>
 <link rel="preload" href="assets/fonts/roboto-flex-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/roboto-flex-600.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/style.css">
@@ -49,7 +62,7 @@
     <div class="hero-copy">
       <a class="chip chip-new" href="https://github.com/So1uv/Leafit/releases/latest"><b data-gh="short">2.5</b><span data-gh="date">See what's new</span><svg class="ic"><use href="#i-ChevronRight"/></svg></a>
       <h1><span class="line"><span>Your day,</span></span><span class="line"><span class="accent">your rhythm.</span></span></h1>
-      <p class="lead">Leafit is a calm journal for workouts, meals, water and sleep. One app instead of four, and all of it stays on your phone. No account, no ads, nothing to sign up for.</p>
+      <p class="lead">Leafit is a free Android app for workouts, meals, water and sleep. One calm app instead of four, and all of it stays on your phone. No account, no ads, nothing to sign up for.</p>
       <div class="cta">
         <a class="btn btn-filled btn-lg" href="https://github.com/So1uv/Leafit/releases/latest/download/Leafit.apk" data-gh="apk"><svg class="ic"><use href="#i-FileDownload"/></svg>Download APK</a>
         <a class="btn btn-outline btn-lg" href="https://github.com/So1uv/Leafit"><svg class="ic gh" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>Source code</a>
@@ -610,8 +623,16 @@
       <p>It runs all night, so plug the phone in, as the app suggests. Some phones stop background apps at night; Leafit tells you how to remove the battery restriction if that happens.</p>
     </details>
     <details>
-      <summary>Which phones does it work on?<svg class="ic"><use href="#i-ExpandMore"/></svg></summary>
+      <summary>Which Android versions does Leafit support?<svg class="ic"><use href="#i-ExpandMore"/></svg></summary>
       <p>Anything with Android 8.0 or newer. It's tested on a Samsung Galaxy S10 (Android 12), Xiaomi 15 (HyperOS, Android 15 and 16) and Pixel 7 (Android 16 and 17). GPS routes need Google Play services; step counting needs a step sensor.</p>
+    </details>
+    <details>
+      <summary>Does Leafit need an account?<svg class="ic"><use href="#i-ExpandMore"/></svg></summary>
+      <p>No. There is no account and no server. Everything is stored in a local database on your phone.</p>
+    </details>
+    <details>
+      <summary>Does the sleep tracker record audio?<svg class="ic"><use href="#i-ExpandMore"/></svg></summary>
+      <p>Only if you turn the tracker on. Audio is analyzed on the device and only short clips of louder moments are kept, stored locally.</p>
     </details>
     <details>
       <summary>Does Leafit read health data from other apps?<svg class="ic"><use href="#i-ExpandMore"/></svg></summary>
