@@ -537,6 +537,7 @@ summary{transition:background-color .2s}
   .dock{background:var(--c-high)}
   .get-shape,.mark-xl .mark-shape,.clover,.gem,.blob{animation:none!important;will-change:auto}
   .mark-xl{box-shadow:none}
+  .mark-xl .mark-ic,.mark-xl .mark-shape{animation:none!important;will-change:auto;transform:none}
   .phone img{animation:phonein 1.1s var(--ease) both}
   .phone{will-change:auto}
 }
