@@ -604,7 +604,17 @@
 "· 61 MB": "· 61 МБ",
 "· Android 8.0+": "· Android 8.0+",
 "“How this is calculated” on every metric": "«Як це розраховано» для кожного показника",
-"Mo": "Пн", "Tu": "Вт", "We": "Ср", "Th": "Чт", "Fr": "Пт", "Sa": "Сб", "Su": "Нд"
+"Mo": "Пн",
+"Tu": "Вт",
+"We": "Ср",
+"Th": "Чт",
+"Fr": "Пт",
+"Sa": "Сб",
+"Su": "Нд",
+"Card": "Картка",
+"Sticker PNG": "Стікер PNG",
+"Templates and favorites": "Шаблони й обране",
+"Planned workouts for today": "Заплановані тренування на сьогодні"
 },
 "js": {
 "Released": "Реліз",

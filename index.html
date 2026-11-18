@@ -35,7 +35,7 @@
 <script type="application/ld+json">[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Leafit","alternateName":"Leafit Android","description":"Free open-source Android app for workouts with live GPS routes, sleep tracking with alarms, meals and macros, water reminders, challenges and day notes. No account, no ads, works offline.","applicationCategory":"HealthApplication","applicationSubCategory":"Fitness tracker","operatingSystem":"Android 8.0+","softwareVersion":"2.5.0","downloadUrl":"https://github.com/So1uv/Leafit/releases/latest/download/Leafit.apk","installUrl":"https://github.com/So1uv/Leafit/releases/latest","codeRepository":"https://github.com/So1uv/Leafit","license":"https://www.gnu.org/licenses/gpl-3.0.html","isAccessibleForFree":true,"inLanguage":["en","uk","ru"],"url":"https://leafitapp.github.io/","image":"https://leafitapp.github.io/assets/og.jpg","screenshot":["https://leafitapp.github.io/screenshots/home.webp","https://leafitapp.github.io/screenshots/gps-live.webp","https://leafitapp.github.io/screenshots/sleep-tracker.webp","https://leafitapp.github.io/screenshots/wrapped.webp","https://leafitapp.github.io/screenshots/meals.webp"],"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Person","name":"Soluv","url":"https://github.com/So1uv"}},{"@context":"https://schema.org","@type":"WebSite","name":"Leafit","url":"https://leafitapp.github.io/"},{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is it really free?","acceptedAnswer":{"@type":"Answer","text":"Yes. No subscription, no premium tier, no ads. Leafit is open source under GPL-3.0."}},{"@type":"Question","name":"How do I install the APK?","acceptedAnswer":{"@type":"Answer","text":"Download Leafit.apk on your phone and open it. Android will ask you once to allow installs from your browser or file manager."}},{"@type":"Question","name":"Does Leafit need an account?","acceptedAnswer":{"@type":"Answer","text":"No. There is no account and no server. Everything is stored in a local database on your phone."}},{"@type":"Question","name":"Which Android versions does Leafit support?","acceptedAnswer":{"@type":"Answer","text":"Android 8.0 and newer. It is tested on Samsung Galaxy S10, Xiaomi 15 and Pixel 7."}},{"@type":"Question","name":"Does the sleep tracker record audio?","acceptedAnswer":{"@type":"Answer","text":"Only if you turn the tracker on. Audio is analyzed on the device and only short clips of louder moments are kept, stored locally."}}]}]</script>
 <link rel="preload" href="assets/fonts/roboto-flex-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/roboto-flex-600.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/style.css?v=202611191545">
+<link rel="stylesheet" href="assets/style.css?v=202611191710">
 <script>try{var t=localStorage.getItem("leafit-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body>
@@ -88,71 +88,7 @@
       <svg class="clover" aria-hidden="true"><use href="#s-clover"/></svg>
       <svg class="gem" aria-hidden="true"><use href="#s-gem"/></svg>
       <div class="phone p1" aria-hidden="true"><img src="assets/shots/gps-live.webp" width="640" height="1329" alt=""></div>
-      <div class="phone p2 demo">
-        <div class="mock" role="group" aria-label="Interactive preview of the Leafit app">
-          <div class="m-screen">
-            <div class="m-status" aria-hidden="true"><b class="m-clock">20:34</b><i class="m-cam"></i><span class="m-sys"><i class="m-sig"></i><i class="m-bat">91</i></span></div>
-            <div class="m-view">
-              <section class="m-scr on" data-s="0" aria-label="Home">
-                <div class="m-top"><span class="m-ava" aria-hidden="true"><svg class="m-ava-s"><use href="#s-cookie"/></svg><svg class="ic"><use href="#i-Eco"/></svg></span><span class="m-hi"><small class="m-greet">Good evening</small><b>Leaf</b></span><span class="m-ib" aria-hidden="true"><svg class="ic"><use href="#i-EmojiEvents"/></svg><i>1</i></span><span class="m-ib" aria-hidden="true"><svg class="ic"><use href="#i-Settings"/></svg></span></div>
-                <div class="m-card">
-                  <div class="m-ch"><span class="m-badge"><svg class="ic"><use href="#i-VitalSigns"/></svg></span><b>Daily activity</b></div>
-                  <div class="m-act">
-                    <div class="m-rings" aria-hidden="true"><svg viewBox="0 0 100 100"><circle class="rt" cx="50" cy="50" r="44"/><circle class="rt" cx="50" cy="50" r="33"/><circle class="rt" cx="50" cy="50" r="22"/><circle class="rp r1" cx="50" cy="50" r="44" pathLength="100" style="--v:64"/><circle class="rp r2" cx="50" cy="50" r="33" pathLength="100" style="--v:78"/><circle class="rp r3" cx="50" cy="50" r="22" pathLength="100" style="--v:81"/></svg><span class="m-core"><svg><use href="#s-cookie"/></svg><svg class="ic"><use href="#i-DirectionsWalk"/></svg></span></div>
-                    <ul class="m-chips">
-                      <li class="c1"><i><svg class="ic"><use href="#i-LocalFireDepartment"/></svg></i><span>Cal<b>1 284 · 64%</b></span></li>
-                      <li class="c2"><i><svg class="ic"><use href="#i-DirectionsWalk"/></svg></i><span>Steps<b><em data-mn="steps">7 840</em> · 78%</b></span></li>
-                      <li class="c3"><i><svg class="ic"><use href="#i-NightsStay"/></svg></i><span>Sleep<b>81%</b></span></li>
-                    </ul>
-                  </div>
-                </div>
-                <div class="m-card">
-                  <div class="m-ch"><span class="m-badge"><svg class="ic"><use href="#i-CalendarViewWeek"/></svg></span><b>Weekly activity</b></div>
-                  <div class="m-bars" aria-hidden="true"><i style="--h:46"><u>Mo</u></i><i style="--h:72"><u>Tu</u></i><i style="--h:58"><u>We</u></i><i class="best" style="--h:100"><u>Th</u></i><i style="--h:64"><u>Fr</u></i><i style="--h:38"><u>Sa</u></i><i class="now" style="--h:78"><u>Su</u></i></div>
-                  <p class="m-best">Best day: Thursday</p>
-                </div>
-              </section>
-              <section class="m-scr" data-s="1" aria-label="Workout">
-                <h4 class="m-title">Today's workouts</h4>
-                <div class="m-card">
-                  <div class="m-row"><span class="m-badge"><svg class="ic"><use href="#i-DirectionsRun"/></svg></span><span class="m-rt"><b>Run</b><small>Outdoor running</small></span></div>
-                  <div class="m-dial" aria-hidden="true"><svg class="m-ticks" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" pathLength="120"/></svg><svg class="m-dial-s"><use href="#s-cookie"/></svg><span class="m-hand"><i></i></span><span class="m-dial-in"><svg class="ic"><use href="#i-Timer"/></svg><b class="m-time">00:00</b><small class="m-state">ready to start</small></span></div>
-                  <div class="m-route"><svg class="ic"><use href="#i-Map"/></svg><span class="m-rt"><b>Record route on the map</b><small>Outdoor activity · precise GPS</small></span><i class="m-sw on" aria-hidden="true"></i></div>
-                  <button class="m-btn" type="button" data-run><svg class="ic"><use href="#i-PlayArrow"/></svg><span>Start workout</span></button>
-                </div>
-              </section>
-              <section class="m-scr" data-s="2" aria-label="Nutrition">
-                <h4 class="m-title">Today's meals</h4>
-                <div class="m-card m-water">
-                  <div class="m-row"><span class="m-badge"><svg class="ic"><use href="#i-WaterDrop"/></svg></span><span class="m-rt"><b>Water</b><small>Daily guide · 2000 ml</small></span><em class="m-pct">63%</em></div>
-                  <div class="m-big"><b data-mw>1 250</b> ml<small class="m-left">750 ml left</small></div>
-                  <div class="m-glass" aria-hidden="true"><i class="f"></i><i class="f"></i><i class="h"></i><i></i></div>
-                  <div class="m-add"><button type="button" data-add="150">+150</button><button type="button" data-add="250">+250</button><button type="button" data-add="500">+500</button></div>
-                </div>
-                <div class="m-meal"><span class="m-badge"><svg class="ic"><use href="#i-Coffee"/></svg></span><span class="m-rt"><b>Breakfast</b><small>Overnight oats · 320 kcal</small></span></div>
-                <div class="m-meal"><span class="m-badge"><svg class="ic"><use href="#i-LunchDining"/></svg></span><span class="m-rt"><b>Lunch</b><small>Open to add a dish</small></span></div>
-              </section>
-              <section class="m-scr" data-s="3" aria-label="Sleep">
-                <h4 class="m-title">Today's sleep</h4>
-                <div class="m-card">
-                  <div class="m-ch"><span class="m-badge t"><svg class="ic"><use href="#i-NightsStay"/></svg></span><b>Sleep timeline</b></div>
-                  <b class="m-dur">8 h 30 min</b>
-                  <small class="m-goal">Goal 8 h 0 min</small>
-                  <div class="m-times"><span>In bed<b>22:30</b></span><span>Woke<b>07:00</b></span></div>
-                  <div class="m-line" aria-hidden="true"><i></i></div>
-                  <div class="m-axis" aria-hidden="true"><span>12:00</span><span>00:00</span><span>12:00</span></div>
-                </div>
-                <div class="m-card m-q">
-                  <div class="m-qh"><span class="m-face" aria-hidden="true"><svg><use href="#s-cookie"/></svg><svg class="ic"><use href="#i-SentimentNeutral"/></svg></span><span class="m-rt"><small>Sleep quality</small><b class="m-ql">Okay</b></span><em class="m-qn">3/5</em></div>
-                  <div class="m-faces"><button type="button" data-q="1" aria-label="Terrible"><svg class="ic"><use href="#i-SentimentVeryDissatisfied"/></svg></button><button type="button" data-q="2" aria-label="Bad"><svg class="ic"><use href="#i-SentimentDissatisfied"/></svg></button><button type="button" data-q="3" class="on" aria-label="Okay"><svg class="ic"><use href="#i-SentimentNeutral"/></svg></button><button type="button" data-q="4" aria-label="Good"><svg class="ic"><use href="#i-SentimentSatisfied"/></svg></button><button type="button" data-q="5" aria-label="Excellent"><svg class="ic"><use href="#i-SentimentVerySatisfied"/></svg></button></div>
-                </div>
-              </section>
-            </div>
-            <nav class="m-nav" aria-label="App sections"><button type="button" class="on" data-go="0" aria-label="Home"><svg class="ic"><use href="#i-Home"/></svg><span>Home</span></button><button type="button" data-go="1" aria-label="Workout"><svg class="ic"><use href="#i-FitnessCenter"/></svg><span>Workout</span></button><button type="button" data-go="2" aria-label="Nutrition"><svg class="ic"><use href="#i-Restaurant"/></svg><span>Nutrition</span></button><button type="button" data-go="3" aria-label="Sleep"><svg class="ic"><use href="#i-NightsStay"/></svg><span>Sleep</span></button></nav>
-            <i class="m-home-bar" aria-hidden="true"></i>
-          </div>
-        </div>
-      </div>
+      <div class="phone p2" aria-hidden="true"><img src="assets/shots/home.webp" width="640" height="1329" alt=""></div>
       <div class="phone p3" aria-hidden="true"><img src="assets/shots/sleep-tracker.webp" width="640" height="1329" alt=""></div>
     </div>
   </div>
@@ -381,7 +317,7 @@
     </div>
 
     <div class="scrolly">
-      <div class="sc-steps"><article class="sc-step on" data-i="0"><span class="sc-n">01</span><h3>Pick one of 50 types</h3><p>From trail running to table tennis. The form changes to fit what you picked, so a bike ride never asks for sets and reps.</p></article><article class="sc-step" data-i="1"><span class="sc-n">02</span><h3>Go, and watch it live</h3><p>Outdoors, the route draws itself on OpenStreetMap. Pace, distance and GPS state sit in big tiles you can read on the move.</p></article><article class="sc-step" data-i="2"><span class="sc-n">03</span><h3>Everything lands in your journal</h3><p>Each session is saved to today, next to templates, favorites and the plan for your next workout.</p></article><article class="sc-step" data-i="3"><span class="sc-n">04</span><h3>Share it if you want</h3><p>Turn the workout into a Wrapped card for stories or messages. Nothing is posted unless you do it yourself.</p></article></div>
+      <div class="sc-steps"><article class="sc-step on" data-i="0"><div class="sc-card"><div class="sc-top"><span class="sc-n">01</span><span class="sc-ic"><svg class="ic"><use href="#i-DirectionsRun"/></svg></span></div><h3>Pick one of 50 types</h3><p>From trail running to table tennis. The form changes to fit what you picked, so a bike ride never asks for sets and reps.</p><ul class="sc-chips"><li>Run</li><li>Walk</li><li class="on">Cycle</li><li>Gym</li><li>Yoga</li><li>Sport</li><li>Other</li></ul></div></article><article class="sc-step" data-i="1"><div class="sc-card"><div class="sc-top"><span class="sc-n">02</span><span class="sc-ic"><svg class="ic"><use href="#i-Route"/></svg></span></div><h3>Go, and watch it live</h3><p>Outdoors, the route draws itself on OpenStreetMap. Pace, distance and GPS state sit in big tiles you can read on the move.</p><div class="sc-tiles"><div><b>5.24</b><span>km</span></div><div><b>5:28</b><span>Avg pace</span></div><div><b>±4 m</b><span>GPS accuracy</span></div></div></div></article><article class="sc-step" data-i="2"><div class="sc-card"><div class="sc-top"><span class="sc-n">03</span><span class="sc-ic"><svg class="ic"><use href="#i-EditNote"/></svg></span></div><h3>Everything lands in your journal</h3><p>Each session is saved to today, next to templates, favorites and the plan for your next workout.</p><ul class="sc-list"><li><svg class="ic"><use href="#i-Check"/></svg>Templates and favorites</li><li><svg class="ic"><use href="#i-Check"/></svg>Planned workouts for today</li><li><svg class="ic"><use href="#i-Check"/></svg>Personal bests per exercise</li></ul></div></article><article class="sc-step" data-i="3"><div class="sc-card"><div class="sc-top"><span class="sc-n">04</span><span class="sc-ic"><svg class="ic"><use href="#i-AwardStar"/></svg></span></div><h3>Share it if you want</h3><p>Turn the workout into a Wrapped card for stories or messages. Nothing is posted unless you do it yourself.</p><ul class="sc-chips"><li>Card</li><li class="on">9:16</li><li>4:5</li><li>1:1</li><li>Sticker PNG</li></ul></div></article></div>
       <div class="sc-stage"><div class="sc-phone"><img class="on" src="assets/shots/workout-type.webp" width="640" height="1329" alt="Choosing a workout type in Leafit" loading="lazy" decoding="async"><img src="assets/shots/gps-live.webp" width="640" height="1329" alt="Live GPS route in Leafit" loading="lazy" decoding="async"><img src="assets/shots/workouts.webp" width="640" height="1329" alt="Today's workouts in Leafit" loading="lazy" decoding="async"><img src="assets/shots/wrapped.webp" width="640" height="1329" alt="Leafit Wrapped card" loading="lazy" decoding="async"></div><div class="sc-dots" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div></div>
     </div>
 
@@ -940,6 +876,6 @@
   <p class="lb-cap"></p>
 </dialog>
 
-<script src="assets/app.js?v=202611191545" defer></script>
+<script src="assets/app.js?v=202611191710" defer></script>
 </body>
 </html>
