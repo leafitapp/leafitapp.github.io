@@ -1,5 +1,9 @@
 (() => {
   const root = document.documentElement;
+  const DICT = window.LEAFIT_I18N || {};
+  const t = str => DICT[str] || str;
+  const LANG = (root.lang || "en").slice(0, 2);
+  const LOCALE = LANG === "uk" ? "uk-UA" : LANG === "ru" ? "ru-RU" : "en-GB";
   const dark = matchMedia("(prefers-color-scheme: dark)");
   const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const touch = matchMedia("(hover: none)").matches;
@@ -69,13 +73,13 @@
     const set = (key, fn) => $$(`[data-gh="${key}"]`).forEach(fn);
     set("short", el => { el.textContent = r.short; });
     set("name", el => { el.textContent = "Leafit " + r.version; });
-    set("date", el => { el.textContent = "Released " + r.date; });
+    set("date", el => { el.textContent = t("Released") + " " + r.date; });
     if (r.size) set("size", el => { el.textContent = " · " + fmtSize(r.size); });
     if (r.apk) set("apk", el => { el.href = r.apk; });
-    if (r.downloads > 0) set("downloads", el => { el.textContent = fmtCount(r.downloads) + " downloads"; el.hidden = false; });
+    if (r.downloads > 0) set("downloads", el => { el.textContent = t("{n} downloads").replace("{n}", fmtCount(r.downloads)); el.hidden = false; });
   };
   const loadRelease = async () => {
-    const key = "leafit-release-2";
+    const key = "leafit-release-3-" + LANG;
     try {
       const cached = JSON.parse(sessionStorage.getItem(key) || "null");
       if (cached && Date.now() - cached.at < 3600000) return applyRelease(cached);
@@ -93,7 +97,7 @@
         at: Date.now(),
         version,
         short: version.replace(/\.0$/, ""),
-        date: new Date(latest.published_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
+        date: new Date(latest.published_at).toLocaleDateString(LOCALE, { day: "numeric", month: "short", year: "numeric" }),
         size: apk ? apk.size : 0,
         apk: apk ? apk.browser_download_url : "",
         downloads,
@@ -438,11 +442,11 @@
     buzzBtn.addEventListener("click", () => {
       if (navigator.vibrate) navigator.vibrate([12, 60, 12, 60, 30]);
       buzzBtn.animate([{ transform: "translateX(0)" }, { transform: "translateX(-4px) rotate(-2deg)" }, { transform: "translateX(4px) rotate(2deg)" }, { transform: "translateX(-2px)" }, { transform: "translateX(0)" }], { duration: 320, easing: "ease-out" });
-      if (!navigator.vibrate) snack("Your device doesn't support vibration here");
+      if (!navigator.vibrate) snack(t("Your device doesn't support vibration here"));
     });
   }
 
-  $$("details").forEach(d => {
+  $$("details:not(.langs)").forEach(d => {
     const summary = $("summary", d);
     const body = $("p", d);
     let busy = false;
@@ -594,14 +598,14 @@
   const shareBtn = $("#share");
   if (shareBtn) {
     shareBtn.addEventListener("click", async () => {
-      const data = { title: "Leafit", text: "A calm Android journal for workouts, meals, water and sleep. No account, no ads.", url: location.origin + "/" };
+      const data = { title: "Leafit", text: t("A calm Android journal for workouts, meals, water and sleep. No account, no ads."), url: location.origin + location.pathname };
       if (navigator.share) {
         try { await navigator.share(data); } catch (e) {}
         return;
       }
       try {
         await navigator.clipboard.writeText(data.url);
-        snack("Link copied");
+        snack(t("Link copied"));
       } catch (e) {
         snack(data.url);
       }
@@ -626,7 +630,7 @@
     $$("main > section, .marquee, .glass, .jar, .foot").forEach(el => pauser.observe(el));
   }
 
-  const targets = $$(".num, .act, .card, .tile, .formula, .private, .design, .live, details, .get, .head, .qr, .calc");
+  const targets = $$(".num, .act, .card, .tile, .formula, .private, .design, .live, details:not(.langs), .get, .head, .qr, .calc");
   const onSeen = el => {
     el.classList.add("in");
     if (el.style.transitionDelay) setTimeout(() => { el.style.transitionDelay = ""; }, 1400);
@@ -660,7 +664,7 @@
   const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
   const pad = n => String(n).padStart(2, "0");
   const clock = m => pad(Math.floor(m / 60)) + ":" + pad(m % 60);
-  const dur = m => Math.floor(m / 60) + " h" + (m % 60 ? " " + (m % 60) + " min" : "");
+  const dur = m => Math.floor(m / 60) + " " + t("h") + (m % 60 ? " " + (m % 60) + " " + t("min") : "");
   const fmtInt = n => Math.round(n).toLocaleString("en-US").replace(/,/g, " ");
   const pageUrl = () => location.origin + location.pathname;
   const typing = el => el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
@@ -732,7 +736,7 @@
       const bmr = 10 * w + 6.25 * h - 5 * a + (sex === "male" ? 5 : sex === "female" ? -161 : -78);
       tweenNum(outK, Math.max(0, Math.round(bmr * 1.2)), fmtInt);
       const bmi = w / Math.pow(h / 100, 2);
-      outB.textContent = "BMI " + bmi.toFixed(1) + ", " + cats.find(x => bmi < x[0])[1] + ". Resting estimate × 1.2, the same as in your profile.";
+      outB.textContent = t("BMI") + " " + bmi.toFixed(1) + ", " + t(cats.find(x => bmi < x[0])[1]) + ". " + t("Resting estimate × 1.2, the same as in your profile.");
     };
     const pick = $$(".pick button", kcalBox);
     pick.forEach(b => b.addEventListener("click", () => {
@@ -758,7 +762,7 @@
       const txt = clock(bed);
       if (txt !== last) { outT.textContent = txt; if (last) pop(outT); last = txt; }
       const cycles = Math.floor(goal / 90);
-      outN.textContent = dur(goal) + " of sleep plus 15 minutes to fall asleep: about " + cycles + " cycles of 90 minutes before the alarm.";
+      outN.textContent = t("{d} of sleep plus 15 minutes to fall asleep: about {n} cycles of 90 minutes before the alarm.").replace("{d}", dur(goal)).replace("{n}", cycles);
       arc.style.strokeDasharray = (goal + 15) + " 1440";
       arc.style.strokeDashoffset = -bed;
     };
@@ -779,17 +783,17 @@
       const ml = total();
       jar.style.setProperty("--p", Math.min(1, ml / goal).toFixed(3));
       tweenNum(num, ml, fmtInt);
-      left.textContent = ml >= goal ? "Goal reached" : fmtInt(goal - ml) + " ml left";
+      left.textContent = ml >= goal ? t("Goal reached") : fmtInt(goal - ml) + " " + t("ml left");
       waterBox.classList.toggle("done", ml >= goal);
       undo.disabled = !log.length;
     };
     $$("[data-ml]", waterBox).forEach(b => b.addEventListener("click", () => {
       const before = total();
-      if (before >= 4000) { snack("That's plenty of water for one day"); return; }
+      if (before >= 4000) { snack(t("That's plenty of water for one day")); return; }
       log.push(+b.dataset.ml);
       buzzy(8);
       render();
-      if (before < goal && total() >= goal) { snack("Daily water goal reached"); buzzy([10, 60, 18]); }
+      if (before < goal && total() >= goal) { snack(t("Daily water goal reached")); buzzy([10, 60, 18]); }
     }));
     undo.addEventListener("click", () => { log.pop(); buzzy(6); render(); });
     render();
@@ -845,7 +849,7 @@
     text.replace(/\r/g, "").replace(/!\[[^\]]*\]\([^)]*\)/g, "").replace(/<[^>]+>/g, "").split("\n").forEach(line => {
       const l = line.trim().replace(/^>\s*/, "").trim();
       const alert = l.match(/^\[!(\w+)\]$/);
-      if (alert) { close(); const t = tags[alert[1].toLowerCase()]; if (t) html += `<p class="md-tag md-${alert[1].toLowerCase()}">${t}</p>`; return; }
+      if (alert) { close(); const lab = tags[alert[1].toLowerCase()]; if (lab) html += `<p class="md-tag md-${alert[1].toLowerCase()}">${t(lab)}</p>`; return; }
       const li = l.match(/^[-*+]\s+(?:\[[ xX]\]\s+)?(.*)/);
       if (li) { open("ul"); html += "<li>" + inline(li[1]) + "</li>"; return; }
       const ol = l.match(/^\d+[.)]\s+(.*)/);
@@ -862,6 +866,8 @@
     return html;
   };
   const news = $("#news");
+  const langMenu = $(".langs");
+  if (langMenu) document.addEventListener("click", e => { if (langMenu.open && !langMenu.contains(e.target)) langMenu.open = false; });
   const openNews = async () => {
     if (!news) return;
     openSheet(news);
@@ -869,10 +875,9 @@
     const body = $('[data-news="body"]', news);
     if (lastRelease && lastRelease.notes) {
       body.innerHTML = md(lastRelease.notes, "Leafit " + lastRelease.version);
-      $('[data-news="date"]', news).textContent = "Released " + lastRelease.date;
-      if (lastRelease.url) $('[data-news="link"]', news).href = lastRelease.url;
+      $('[data-news="date"]', news).textContent = t("Released") + " " + lastRelease.date;
     } else {
-      body.innerHTML = '<p class="md-wait">Release notes could not be loaded right now. They are always on GitHub.</p>';
+      body.innerHTML = '<p class="md-wait">' + t("Release notes could not be loaded right now. They are always on GitHub.") + "</p>";
     }
   };
   const chipNew = $(".chip-new");
@@ -884,11 +889,11 @@
 
   const fmtAgo = iso => {
     const days = Math.round((Date.now() - new Date(iso).getTime()) / 86400000);
-    if (days <= 0) return "today";
-    if (days === 1) return "yesterday";
-    if (days < 30) return days + " days ago";
+    if (days <= 0) return t("today");
+    if (days === 1) return t("yesterday");
+    if (days < 30) return t("{n} days ago").replace("{n}", days);
     const m = Math.round(days / 30);
-    return m < 12 ? m + (m === 1 ? " month ago" : " months ago") : Math.round(days / 365) + " y ago";
+    return m < 12 ? t(m === 1 ? "{n} month ago" : "{n} months ago").replace("{n}", m) : t("{n} y ago").replace("{n}", Math.round(days / 365));
   };
   const statsEl = $(".ghstats");
   const showStats = r => {
@@ -947,23 +952,23 @@
     a.className = "anchor";
     a.href = "#" + sec.id;
     a.textContent = "#";
-    a.setAttribute("aria-label", "Copy link to “" + h.textContent.trim() + "”");
+    a.setAttribute("aria-label", t("Copy link to this section"));
     a.addEventListener("click", e => {
       e.preventDefault();
       history.replaceState(null, "", "#" + sec.id);
-      copyText(pageUrl() + "#" + sec.id, "Link to this section copied");
+      copyText(pageUrl() + "#" + sec.id, t("Link to this section copied"));
     });
     h.append(" ", a);
   });
 
   let installEvt = null;
   addEventListener("beforeinstallprompt", e => { installEvt = e; });
-  addEventListener("appinstalled", () => { installEvt = null; snack("Leafit site added to your apps"); });
+  addEventListener("appinstalled", () => { installEvt = null; snack(t("Leafit site added to your apps")); });
   if ("serviceWorker" in navigator && isSecureContext) {
-    addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+    addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
   }
-  addEventListener("offline", () => snack("You're offline. This page keeps working."));
-  addEventListener("online", () => snack("Back online"));
+  addEventListener("offline", () => snack(t("You're offline. This page keeps working.")));
+  addEventListener("online", () => snack(t("Back online")));
 
   const leafRain = () => {
     if (calm || $(".rain")) return;
@@ -979,7 +984,7 @@
     box.innerHTML = html;
     document.body.append(box);
     buzzy([8, 40, 8, 40, 14]);
-    snack("Your day, your rhythm");
+    snack(t("Your day, your rhythm"));
     setTimeout(() => box.remove(), 6500);
   };
   let taps = 0, tapTimer = 0;
@@ -1004,16 +1009,17 @@
     };
     const apk = () => ($('[data-gh="apk"]') || {}).href;
     const actions = [
-      { icon: () => (isDark() ? "LightMode" : "DarkMode"), title: () => (isDark() ? "Switch to light theme" : "Switch to dark theme"), kind: "T", words: "theme dark light mode night", run: () => setTheme(isDark() ? "light" : "dark", themeBtn) },
-      { icon: () => "FileDownload", title: () => "Download the latest APK", kind: "D", words: "download install apk get", run: () => { if (apk()) location.href = apk(); } },
-      { icon: () => "AwardStar", title: () => "What's new in this release", kind: "N", words: "changelog release notes update version new", run: () => openNews() },
-      { icon: () => "ContentCopy", title: () => "Copy link to this page", kind: "Action", words: "copy link url", run: () => copyText(pageUrl(), "Link copied") },
-      { icon: () => "Share", title: () => "Share Leafit", kind: "Action", words: "share send", run: () => { const sb = $("#share"); if (sb) sb.click(); } },
-      { icon: () => "KeyboardArrowUp", title: () => "Back to top", kind: "U", words: "top start up", run: () => scrollTo({ top: 0, behavior: smooth() }) },
-      { icon: () => "Keyboard", title: () => "Keyboard shortcuts", kind: "?", words: "keys keyboard help shortcuts", run: () => openSheet(keys) },
-      { icon: () => "Database", title: () => "Source code on GitHub", kind: "Link", words: "github code repo source open", run: () => { location.href = "https://github.com/So1uv/Leafit"; } },
-      { icon: () => "PhoneAndroid", title: () => "Add this site to your apps", kind: "Action", words: "install pwa app offline", when: () => !!installEvt, run: () => { if (installEvt) installEvt.prompt(); } },
-      { icon: () => "Eco", title: () => "Let it rain leaves", kind: "Fun", words: "leaf leaves rain fun", secret: true, run: () => leafRain() }
+      { icon: () => (isDark() ? "LightMode" : "DarkMode"), title: () => t(isDark() ? "Switch to light theme" : "Switch to dark theme"), kind: "T", words: "theme dark light mode night", run: () => setTheme(isDark() ? "light" : "dark", themeBtn) },
+      { icon: () => "FileDownload", title: () => t("Download the latest APK"), kind: "D", words: "download install apk get", run: () => { if (apk()) location.href = apk(); } },
+      { icon: () => "AwardStar", title: () => t("What's new in this release"), kind: "N", words: "changelog release notes update version new", run: () => openNews() },
+      { icon: () => "ContentCopy", title: () => t("Copy link to this page"), kind: "Action", words: "copy link url", run: () => copyText(pageUrl(), t("Link copied")) },
+      { icon: () => "Share", title: () => t("Share Leafit"), kind: "Action", words: "share send", run: () => { const sb = $("#share"); if (sb) sb.click(); } },
+      { icon: () => "KeyboardArrowUp", title: () => t("Back to top"), kind: "U", words: "top start up", run: () => scrollTo({ top: 0, behavior: smooth() }) },
+      { icon: () => "Keyboard", title: () => t("Keyboard shortcuts"), kind: "?", words: "keys keyboard help shortcuts", run: () => openSheet(keys) },
+      { icon: () => "Restore", title: () => t("Changelog: every release"), kind: "Link", words: "changelog history releases versions timeline", run: () => { location.href = "changelog/"; } },
+      { icon: () => "Database", title: () => t("Source code on GitHub"), kind: "Link", words: "github code repo source open", run: () => { location.href = "https://github.com/So1uv/Leafit"; } },
+      { icon: () => "PhoneAndroid", title: () => t("Add this site to your apps"), kind: "Action", words: "install pwa app offline", when: () => !!installEvt, run: () => { if (installEvt) installEvt.prompt(); } },
+      { icon: () => "Eco", title: () => t("Let it rain leaves"), kind: "Fun", words: "leaf leaves rain fun", secret: true, run: () => leafRain() }
     ];
     const sections = $$("main section[id]").map(sec => {
       const h = $("h2", sec);
@@ -1025,7 +1031,7 @@
     const faqs = $$("#faq details").map(d => {
       const q = $("summary", d).textContent.trim();
       const a = $("p", d);
-      return { icon: () => "Info", title: () => q, sub: "Questions", kind: "FAQ", words: a ? a.textContent : "", run: () => { d.open = true; goTo(d); } };
+      return { icon: () => "Info", title: () => q, sub: t("Questions"), kind: "FAQ", words: a ? a.textContent : "", run: () => { d.open = true; goTo(d); } };
     });
     const all = [...actions, ...sections, ...faqs];
     let shown = [], active = 0;
@@ -1056,9 +1062,9 @@
       const pool = all.filter(it => (!it.when || it.when()) && (!it.secret || q.length >= 3));
       shown = q ? pool.map(it => [it, score(it, q)]).filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]).map(x => x[0]).slice(0, 12) : pool.filter(it => !it.secret).slice(0, 30);
       list.innerHTML = shown.length ? shown.map((it, i) => {
-        const k = it.kind.length === 1 ? `<kbd>${esc(it.kind)}</kbd>` : `<span class="pal-k">${esc(it.kind)}</span>`;
+        const k = it.kind.length === 1 ? `<kbd>${esc(it.kind)}</kbd>` : `<span class="pal-k">${esc(t(it.kind))}</span>`;
         return `<li role="option" id="pal-o${i}" aria-selected="false"><span class="pal-ic">${icon(it.icon())}</span><span class="pal-t"><b>${mark(it.title(), q)}</b>${it.sub ? `<small>${esc(it.sub)}</small>` : ""}</span>${k}</li>`;
-      }).join("") : '<li class="pal-none" aria-disabled="true">Nothing here. Try “sleep”, “GPS” or “dark”.</li>';
+      }).join("") : '<li class="pal-none" aria-disabled="true">' + esc(t("Nothing here. Try “sleep”, “GPS” or “dark”.")) + "</li>";
       setActive(0);
     };
     const run = i => {
@@ -1104,5 +1110,141 @@
       else if (k === "q" || k === "Q") jump("#faq");
       else if (k === "u" || k === "U") scrollTo({ top: 0, behavior: smooth() });
     });
+  }
+
+  const mock = $(".mock");
+  if (mock) {
+    const scrs = $$(".m-scr", mock);
+    const navs = $$(".m-nav button", mock);
+    let cur = 0, tour = 0, touched = false;
+    const show = i => {
+      if (i === cur) return;
+      const dir = i > cur ? 1 : -1;
+      mock.style.setProperty("--dir", dir);
+      scrs[cur].classList.remove("on");
+      scrs[cur].classList.add("out");
+      const prev = scrs[cur];
+      setTimeout(() => prev.classList.remove("out"), 520);
+      scrs[i].classList.remove("out");
+      void scrs[i].offsetWidth;
+      scrs[i].classList.add("on");
+      navs.forEach((b, n) => { b.classList.toggle("on", n === i); b.setAttribute("aria-current", n === i ? "page" : "false"); });
+      cur = i;
+    };
+    const stopTour = () => { touched = true; clearInterval(tour); };
+    navs.forEach((b, i) => b.addEventListener("click", () => { stopTour(); buzzy(6); show(i); }));
+    mock.addEventListener("pointerdown", stopTour, { once: true });
+
+    const clockEl = $(".m-clock", mock);
+    const greetEl = $(".m-greet", mock);
+    const tick = () => {
+      const d = new Date();
+      clockEl.textContent = pad(d.getHours()) + ":" + pad(d.getMinutes());
+      const h = d.getHours();
+      greetEl.textContent = h < 5 ? t("Good night") : h < 12 ? t("Good morning") : h < 18 ? t("Good afternoon") : t("Good evening");
+    };
+    tick();
+    setInterval(tick, 30000);
+
+    const stepsEl = $('[data-mn="steps"]', mock);
+    let steps = 7840;
+    setInterval(() => {
+      if (document.hidden || cur !== 0 || mock.closest(".off")) return;
+      steps += 1 + Math.floor(Math.random() * 3);
+      stepsEl.textContent = fmtInt(steps);
+    }, 2400);
+
+    const dial = $(".m-dial", mock);
+    const hand = $(".m-hand", mock);
+    const timeEl = $(".m-time", mock);
+    const stateEl = $(".m-state", mock);
+    const runBtn = $("[data-run]", mock);
+    const runLabel = $("span", runBtn);
+    const runIcon = $("use", runBtn);
+    let secs = 0, timer = 0;
+    const paint = () => {
+      timeEl.textContent = pad(Math.floor(secs / 60)) + ":" + pad(secs % 60);
+      hand.style.setProperty("--deg", (secs * 6) + "deg");
+    };
+    runBtn.addEventListener("click", () => {
+      buzzy(10);
+      if (timer) {
+        clearInterval(timer);
+        timer = 0;
+        dial.classList.remove("run");
+        runBtn.classList.remove("run");
+        stateEl.textContent = t("paused");
+        runLabel.textContent = t("Resume");
+        runIcon.setAttribute("href", "#i-PlayArrow");
+      } else {
+        timer = setInterval(() => { secs++; paint(); }, 1000);
+        dial.classList.add("run");
+        runBtn.classList.add("run");
+        stateEl.textContent = t("active workout");
+        runLabel.textContent = t("Pause");
+        runIcon.setAttribute("href", "#i-Pause");
+      }
+    });
+
+    let ml = 1250;
+    const mw = $("[data-mw]", mock);
+    const pct = $(".m-pct", mock);
+    const left = $(".m-left", mock);
+    const glasses = $$(".m-glass i", mock);
+    const paintWater = () => {
+      tweenNum(mw, ml, fmtInt);
+      pct.textContent = Math.round(ml / 20) + "%";
+      left.textContent = ml >= 2000 ? t("Goal reached") : fmtInt(2000 - ml) + " " + t("ml left");
+      glasses.forEach((g, i) => g.style.setProperty("--g", Math.max(0, Math.min(1, ml / 500 - i)).toFixed(2)));
+    };
+    $$("[data-add]", mock).forEach(b => b.addEventListener("click", () => {
+      ml = ml >= 2000 ? +b.dataset.add : ml + +b.dataset.add;
+      buzzy(8);
+      paintWater();
+    }));
+    paintWater();
+
+    const qNames = ["Terrible", "Bad", "Okay", "Good", "Excellent"];
+    const qColors = ["#B3261E", "#9C5B2E", "#6B5D3C", "#3B674D", "#2E6B5E"];
+    const faceIcon = $(".m-face use:last-child", mock) || $$(".m-face use", mock)[1];
+    const qBtns = $$(".m-faces button", mock);
+    const qCard = $(".m-q", mock);
+    qBtns.forEach(b => b.addEventListener("click", () => {
+      const q = +b.dataset.q;
+      qBtns.forEach(x => x.classList.toggle("on", x === b));
+      qCard.style.setProperty("--qc", qColors[q - 1]);
+      $(".m-ql", mock).textContent = t(qNames[q - 1]);
+      $(".m-qn", mock).textContent = q + "/5";
+      faceIcon.setAttribute("href", $("use", b).getAttribute("href"));
+      const face = $(".m-face svg", mock);
+      face.style.rotate = (q * 72) + "deg";
+      buzzy(6);
+    }));
+
+    if (!calm) {
+      tour = setInterval(() => {
+        if (touched || document.hidden || mock.closest(".off")) return;
+        show((cur + 1) % scrs.length);
+      }, 4200);
+    }
+  }
+
+  const scrolly = $(".scrolly");
+  if (scrolly) {
+    const steps = $$(".sc-step", scrolly);
+    const shots = $$(".sc-phone img", scrolly);
+    const marks = $$(".sc-dots i", scrolly);
+    let on = 0;
+    const pick = i => {
+      if (i === on) return;
+      on = i;
+      steps.forEach((x, n) => x.classList.toggle("on", n === i));
+      shots.forEach((x, n) => x.classList.toggle("on", n === i));
+      marks.forEach((x, n) => x.classList.toggle("on", n === i));
+    };
+    if ("IntersectionObserver" in window) {
+      const so = new IntersectionObserver(en => en.forEach(x => { if (x.isIntersecting) pick(+x.target.dataset.i); }), { rootMargin: "-45% 0px -45% 0px" });
+      steps.forEach(x => so.observe(x));
+    }
   }
 })();
