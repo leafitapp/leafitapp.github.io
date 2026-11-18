@@ -202,33 +202,42 @@
   let idleT = 0;
   let dockT = 0;
   let current = "";
+  let docMax = 1, heroEnd = 0, spyTops = [];
+  const measure = () => {
+    docMax = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+    heroEnd = hero.offsetTop + hero.offsetHeight - 120;
+    spyTops = spyTargets.map(t => [t.id, t.getBoundingClientRect().top + scrollY]);
+  };
+  measure();
+  addEventListener("resize", measure);
+  addEventListener("load", measure);
+  if ("ResizeObserver" in window) new ResizeObserver(() => measure()).observe(document.body);
   const onScroll = () => {
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(() => {
       const y = scrollY;
       const dy = y - lastY;
-      const max = document.documentElement.scrollHeight - innerHeight;
-      const p = Math.min(1, y / Math.max(1, max));
-      bar.classList.toggle("scrolled", y > 8);
+      const p = Math.min(1, y / docMax);
+      if ((y > 8) !== bar.classList.contains("scrolled")) bar.classList.toggle("scrolled", y > 8);
       progressWave.set(p);
       progressWave.setAmp(p > 0.995 ? 0 : 1);
       clearTimeout(idleT);
       idleT = setTimeout(() => progressWave.setAmp(p > 0.995 ? 0 : 0.35), 650);
-      const heroEnd = hero.offsetTop + hero.offsetHeight - 120;
       if (y < heroEnd || p > 0.985) {
         clearTimeout(dockT);
         dock.classList.toggle("show", y >= heroEnd);
       } else if (dy > 6) {
         clearTimeout(dockT);
         dock.classList.remove("show");
-        dockT = setTimeout(() => { if (scrollY >= hero.offsetTop + hero.offsetHeight - 120) dock.classList.add("show"); }, 900);
+        dockT = setTimeout(() => { if (scrollY >= heroEnd) dock.classList.add("show"); }, 900);
       } else if (dy < -6) {
         clearTimeout(dockT);
         dock.classList.add("show");
       }
       let active = "";
-      for (const s of spyTargets) if (s.getBoundingClientRect().top <= innerHeight * 0.38) active = s.id;
+      const line = y + innerHeight * 0.38;
+      for (const [id, top] of spyTops) if (top <= line) active = id;
       if (p > 0.985) active = "get";
       if (active !== current) {
         current = active;
@@ -614,7 +623,7 @@
         });
       });
     }, { rootMargin: "80px 0px" });
-    $$(".hero, .get, .live, #spaces, .numbers, .marquee, .glass, .jar").forEach(el => pauser.observe(el));
+    $$("main > section, .marquee, .glass, .jar, .foot").forEach(el => pauser.observe(el));
   }
 
   const targets = $$(".num, .act, .card, .tile, .formula, .private, .design, .live, details, .get, .head, .qr, .calc");
@@ -921,13 +930,12 @@
     let ticking = false;
     const upd = () => {
       ticking = false;
-      const max = document.documentElement.scrollHeight - innerHeight;
-      const p = max > 0 ? Math.min(1, scrollY / max) : 0;
+      const p = Math.min(1, scrollY / docMax);
       ring.style.strokeDashoffset = (100 - p * 100).toFixed(2);
-      totop.classList.toggle("show", scrollY > 900);
+      const on = scrollY > 900;
+      if (on !== totop.classList.contains("show")) totop.classList.toggle("show", on);
     };
     addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(upd); } }, { passive: true });
-    addEventListener("resize", upd);
     upd();
     totop.addEventListener("click", () => { scrollTo({ top: 0, behavior: smooth() }); totop.blur(); });
   }
