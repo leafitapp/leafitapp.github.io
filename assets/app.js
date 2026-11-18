@@ -574,13 +574,14 @@
   const ios = !/Android/i.test(ua) && (/iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1 && /Safari/.test(ua) && !/Chrome|Chromium|Edg/.test(ua)));
   if (ios) { const n = $(".ios-note"); if (n) n.hidden = false; }
 
+  if (touch) document.querySelectorAll(".blob").forEach(svg => { if (svg.pauseAnimations) svg.pauseAnimations(); });
   if ("IntersectionObserver" in window) {
     const pauser = new IntersectionObserver(entries => {
       entries.forEach(en => {
         en.target.classList.toggle("off", !en.isIntersecting);
         en.target.querySelectorAll("svg").forEach(svg => {
           if (!svg.pauseAnimations || !svg.querySelector("animate")) return;
-          if (en.isIntersecting) svg.unpauseAnimations(); else svg.pauseAnimations();
+          if (en.isIntersecting && !(touch && svg.classList.contains("blob"))) svg.unpauseAnimations(); else svg.pauseAnimations();
         });
       });
     }, { rootMargin: "80px 0px" });
