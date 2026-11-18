@@ -63,7 +63,9 @@
 
   const fmtSize = bytes => Math.round(bytes / 1e6) + " MB";
   const fmtCount = n => n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "") + "k" : String(n);
+  let lastRelease = null;
   const applyRelease = r => {
+    lastRelease = r;
     const set = (key, fn) => $$(`[data-gh="${key}"]`).forEach(fn);
     set("short", el => { el.textContent = r.short; });
     set("name", el => { el.textContent = "Leafit " + r.version; });
@@ -73,7 +75,7 @@
     if (r.downloads > 0) set("downloads", el => { el.textContent = fmtCount(r.downloads) + " downloads"; el.hidden = false; });
   };
   const loadRelease = async () => {
-    const key = "leafit-release";
+    const key = "leafit-release-2";
     try {
       const cached = JSON.parse(sessionStorage.getItem(key) || "null");
       if (cached && Date.now() - cached.at < 3600000) return applyRelease(cached);
@@ -94,13 +96,15 @@
         date: new Date(latest.published_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
         size: apk ? apk.size : 0,
         apk: apk ? apk.browser_download_url : "",
-        downloads
+        downloads,
+        notes: latest.body || "",
+        url: latest.html_url || ""
       };
       try { sessionStorage.setItem(key, JSON.stringify(r)); } catch (e) {}
       applyRelease(r);
     } catch (e) {}
   };
-  loadRelease();
+  const releaseReady = loadRelease();
 
   const NS = "http://www.w3.org/2000/svg";
   let waveId = 0;
@@ -255,7 +259,7 @@
     el.addEventListener("pointercancel", end, { once: true });
     setTimeout(() => s.remove(), 1400);
   };
-  if (!calm) $$(".btn, .icon-btn, .seg button, .tabs button, .chip-new, summary, .nav a, .list-mock li").forEach(el => el.addEventListener("pointerdown", ripple));
+  if (!calm) $$(".btn, .icon-btn, .seg button, .tabs button, .chip-new, summary, .nav a, .list-mock li, .pick button, .sb, .pour button").forEach(el => el.addEventListener("pointerdown", ripple));
 
   const strip = $(".tabs");
   const ind = $(".ind", strip);
@@ -610,10 +614,10 @@
         });
       });
     }, { rootMargin: "80px 0px" });
-    $$(".hero, .get, .live, #spaces, .numbers, .marquee, .glass").forEach(el => pauser.observe(el));
+    $$(".hero, .get, .live, #spaces, .numbers, .marquee, .glass, .jar").forEach(el => pauser.observe(el));
   }
 
-  const targets = $$(".num, .act, .card, .tile, .formula, .private, .design, .live, details, .get, .head, .qr");
+  const targets = $$(".num, .act, .card, .tile, .formula, .private, .design, .live, details, .get, .head, .qr, .calc");
   const onSeen = el => {
     el.classList.add("in");
     if (el.style.transitionDelay) setTimeout(() => { el.style.transitionDelay = ""; }, 1400);
@@ -642,5 +646,455 @@
     targets.forEach(onSeen);
     headWaves.forEach(w => w.set(1));
     if (liveWave) liveWave.set(0.68);
+  }
+
+  const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
+  const pad = n => String(n).padStart(2, "0");
+  const clock = m => pad(Math.floor(m / 60)) + ":" + pad(m % 60);
+  const dur = m => Math.floor(m / 60) + " h" + (m % 60 ? " " + (m % 60) + " min" : "");
+  const fmtInt = n => Math.round(n).toLocaleString("en-US").replace(/,/g, " ");
+  const pageUrl = () => location.origin + location.pathname;
+  const typing = el => el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
+  const smooth = () => (calm ? "auto" : "smooth");
+  const copyText = async (text, msg) => {
+    try { await navigator.clipboard.writeText(text); snack(msg); } catch (e) { snack(text); }
+  };
+  const tweenNum = (el, to, fmt) => {
+    const from = el.dataset.v === undefined ? to : +el.dataset.v;
+    el.dataset.v = to;
+    cancelAnimationFrame(el._raf);
+    if (calm || from === to) { el.textContent = fmt(to); return; }
+    const start = performance.now();
+    const tick = now => {
+      const t = Math.min(1, (now - start) / 550);
+      el.textContent = fmt(from + (to - from) * (1 - Math.pow(1 - t, 3)));
+      if (t < 1) el._raf = requestAnimationFrame(tick);
+    };
+    el._raf = requestAnimationFrame(tick);
+  };
+  const pop = el => { el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop"); };
+
+  $$(".step").forEach(st => {
+    const out = $("output", st);
+    const min = +st.dataset.min, max = +st.dataset.max, inc = +st.dataset.step || 1, loop = st.dataset.wrap === "1";
+    const fmt = st.dataset.fmt === "time" ? clock : st.dataset.fmt === "dur" ? dur : String;
+    const btns = $$("button", st);
+    const set = v => {
+      if (loop) v = ((v % (max + inc)) + (max + inc)) % (max + inc);
+      else v = Math.max(min, Math.min(max, v));
+      const changed = v !== +st.dataset.v;
+      st.dataset.v = v;
+      out.textContent = fmt(v);
+      if (!loop) btns.forEach(b => { b.disabled = (+b.dataset.d < 0 && v <= min) || (+b.dataset.d > 0 && v >= max); });
+      st.dispatchEvent(new CustomEvent("stepchange", { bubbles: true }));
+      return changed;
+    };
+    let hold = 0, rep = 0;
+    const stop = () => { clearTimeout(hold); clearInterval(rep); };
+    btns.forEach(b => {
+      const d = +b.dataset.d * inc;
+      const bump = () => {
+        if (!set(+st.dataset.v + d)) { stop(); return; }
+        out.dataset.dir = d > 0 ? "up" : "down";
+        pop(out);
+        buzzy(4);
+      };
+      b.addEventListener("pointerdown", e => {
+        if (e.button > 0) return;
+        b._held = false;
+        stop();
+        hold = setTimeout(() => { b._held = true; rep = setInterval(bump, 75); }, 420);
+      });
+      ["pointerup", "pointerleave", "pointercancel"].forEach(t => b.addEventListener(t, stop));
+      b.addEventListener("click", () => { if (b._held) { b._held = false; return; } bump(); });
+    });
+    set(+st.dataset.v);
+  });
+
+  const kcalBox = $("#calc-kcal");
+  if (kcalBox) {
+    let sex = "male";
+    const val = k => +$(`.step[data-key="${k}"]`, kcalBox).dataset.v;
+    const outK = $('[data-out="kcal"]', kcalBox);
+    const outB = $('[data-out="bmi"]', kcalBox);
+    const cats = [[18.5, "underweight"], [25, "normal"], [30, "overweight"], [Infinity, "obese"]];
+    const calc = () => {
+      const w = val("weight"), h = val("height"), a = val("age");
+      const bmr = 10 * w + 6.25 * h - 5 * a + (sex === "male" ? 5 : sex === "female" ? -161 : -78);
+      tweenNum(outK, Math.max(0, Math.round(bmr * 1.2)), fmtInt);
+      const bmi = w / Math.pow(h / 100, 2);
+      outB.textContent = "BMI " + bmi.toFixed(1) + ", " + cats.find(x => bmi < x[0])[1] + ". Resting estimate × 1.2, the same as in your profile.";
+    };
+    const pick = $$(".pick button", kcalBox);
+    pick.forEach(b => b.addEventListener("click", () => {
+      sex = b.dataset.g;
+      pick.forEach(x => x.setAttribute("aria-pressed", x === b));
+      buzzy(6);
+      calc();
+    }));
+    kcalBox.addEventListener("stepchange", calc);
+    calc();
+  }
+
+  const bedBox = $("#calc-bed");
+  if (bedBox) {
+    const outT = $('[data-out="bed"]', bedBox);
+    const outN = $('[data-out="cycles"]', bedBox);
+    const arc = $(".dial-p", bedBox);
+    let last = "";
+    const calc = () => {
+      const alarm = +$('.step[data-key="alarm"]', bedBox).dataset.v;
+      const goal = +$('.step[data-key="goal"]', bedBox).dataset.v;
+      const bed = (((alarm - goal - 15) % 1440) + 1440) % 1440;
+      const txt = clock(bed);
+      if (txt !== last) { outT.textContent = txt; if (last) pop(outT); last = txt; }
+      const cycles = Math.floor(goal / 90);
+      outN.textContent = dur(goal) + " of sleep plus 15 minutes to fall asleep: about " + cycles + " cycles of 90 minutes before the alarm.";
+      arc.style.strokeDasharray = (goal + 15) + " 1440";
+      arc.style.strokeDashoffset = -bed;
+    };
+    bedBox.addEventListener("stepchange", calc);
+    calc();
+  }
+
+  const waterBox = $("#calc-water");
+  if (waterBox) {
+    const goal = 2000;
+    const log = [];
+    const jar = $(".jar", waterBox);
+    const num = $('[data-out="ml"]', waterBox);
+    const left = $('[data-out="left"]', waterBox);
+    const undo = $("[data-undo]", waterBox);
+    const total = () => log.reduce((a, b) => a + b, 0);
+    const render = () => {
+      const ml = total();
+      jar.style.setProperty("--p", Math.min(1, ml / goal).toFixed(3));
+      tweenNum(num, ml, fmtInt);
+      left.textContent = ml >= goal ? "Goal reached" : fmtInt(goal - ml) + " ml left";
+      waterBox.classList.toggle("done", ml >= goal);
+      undo.disabled = !log.length;
+    };
+    $$("[data-ml]", waterBox).forEach(b => b.addEventListener("click", () => {
+      const before = total();
+      if (before >= 4000) { snack("That's plenty of water for one day"); return; }
+      log.push(+b.dataset.ml);
+      buzzy(8);
+      render();
+      if (before < goal && total() >= goal) { snack("Daily water goal reached"); buzzy([10, 60, 18]); }
+    }));
+    undo.addEventListener("click", () => { log.pop(); buzzy(6); render(); });
+    render();
+  }
+
+  const openSheet = d => {
+    if (!d || d.open) return;
+    $$("dialog.sheet[open]").forEach(o => { if (o !== d) o.close(); });
+    d.classList.remove("closing");
+    d.showModal();
+  };
+  const closeSheet = d => {
+    if (!d.open || d.classList.contains("closing")) return;
+    if (calm) { d.close(); return; }
+    d.classList.add("closing");
+    setTimeout(() => { d.classList.remove("closing"); d.close(); }, 200);
+  };
+  $$("dialog.sheet").forEach(d => {
+    d.addEventListener("click", e => { if (e.target === d || e.target.closest("[data-close]")) closeSheet(d); });
+    d.addEventListener("cancel", e => { e.preventDefault(); closeSheet(d); });
+    const grab = $(".grab", d);
+    const inner = $(".sheet-in", d);
+    if (!grab || !inner) return;
+    let y0 = null, dy = 0;
+    inner.addEventListener("touchstart", e => {
+      const body = $(".sheet-body", d);
+      if (body && body.contains(e.target) && body.scrollTop > 0) return;
+      y0 = e.touches[0].clientY; dy = 0;
+    }, { passive: true });
+    inner.addEventListener("touchmove", e => {
+      if (y0 === null) return;
+      dy = Math.max(0, e.touches[0].clientY - y0);
+      inner.style.transform = dy ? `translateY(${dy}px)` : "";
+    }, { passive: true });
+    inner.addEventListener("touchend", () => {
+      if (y0 === null) return;
+      y0 = null;
+      inner.style.transform = "";
+      if (dy > 90) closeSheet(d);
+    });
+  });
+
+  const esc = t => t.replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+  const inline = t => esc(t)
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" rel="noopener">$1</a>');
+  const tags = { important: "Highlights", note: "Also new", caution: "Before you update", warning: "Heads up", tip: "Tip" };
+  const md = (text, skip) => {
+    let html = "", list = "";
+    const close = () => { if (list) { html += "</" + list + ">"; list = ""; } };
+    const open = kind => { if (list !== kind) { close(); html += "<" + kind + ">"; list = kind; } };
+    text.replace(/\r/g, "").replace(/!\[[^\]]*\]\([^)]*\)/g, "").replace(/<[^>]+>/g, "").split("\n").forEach(line => {
+      const l = line.trim().replace(/^>\s*/, "").trim();
+      const alert = l.match(/^\[!(\w+)\]$/);
+      if (alert) { close(); const t = tags[alert[1].toLowerCase()]; if (t) html += `<p class="md-tag md-${alert[1].toLowerCase()}">${t}</p>`; return; }
+      const li = l.match(/^[-*+]\s+(?:\[[ xX]\]\s+)?(.*)/);
+      if (li) { open("ul"); html += "<li>" + inline(li[1]) + "</li>"; return; }
+      const ol = l.match(/^\d+[.)]\s+(.*)/);
+      if (ol) { open("ol"); html += "<li>" + inline(ol[1]) + "</li>"; return; }
+      close();
+      if (!l || /^(-{3,}|\*{3,})$/.test(l)) return;
+      const h = l.match(/^(#{1,6})\s+(.*)/);
+      if (h) {
+        if (skip && h[2].trim() === skip) return;
+        html += h[2].length > 60 ? "<p class=\"md-lead\">" + inline(h[2]) + "</p>" : "<h4>" + inline(h[2]) + "</h4>";
+      } else html += "<p>" + inline(l) + "</p>";
+    });
+    close();
+    return html;
+  };
+  const news = $("#news");
+  const openNews = async () => {
+    if (!news) return;
+    openSheet(news);
+    await releaseReady;
+    const body = $('[data-news="body"]', news);
+    if (lastRelease && lastRelease.notes) {
+      body.innerHTML = md(lastRelease.notes, "Leafit " + lastRelease.version);
+      $('[data-news="date"]', news).textContent = "Released " + lastRelease.date;
+      if (lastRelease.url) $('[data-news="link"]', news).href = lastRelease.url;
+    } else {
+      body.innerHTML = '<p class="md-wait">Release notes could not be loaded right now. They are always on GitHub.</p>';
+    }
+  };
+  const chipNew = $(".chip-new");
+  if (chipNew && news) chipNew.addEventListener("click", e => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button > 0) return;
+    e.preventDefault();
+    openNews();
+  });
+
+  const fmtAgo = iso => {
+    const days = Math.round((Date.now() - new Date(iso).getTime()) / 86400000);
+    if (days <= 0) return "today";
+    if (days === 1) return "yesterday";
+    if (days < 30) return days + " days ago";
+    const m = Math.round(days / 30);
+    return m < 12 ? m + (m === 1 ? " month ago" : " months ago") : Math.round(days / 365) + " y ago";
+  };
+  const statsEl = $(".ghstats");
+  const showStats = r => {
+    if (!statsEl) return;
+    statsEl.hidden = false;
+    const put = (k, v) => { const el = $(`[data-stat="${k}"]`, statsEl); if (el) { el.dataset.v = 0; tweenNum(el, v, n => fmtCount(Math.round(n))); } };
+    put("stars", r.stars);
+    put("forks", r.forks);
+    put("issues", r.issues);
+    $('[data-stat="pushed"]', statsEl).textContent = fmtAgo(r.pushed);
+  };
+  const loadStats = async () => {
+    const key = "leafit-repo";
+    try {
+      const c = JSON.parse(sessionStorage.getItem(key) || "null");
+      if (c && Date.now() - c.at < 3600000) return c;
+    } catch (e) {}
+    try {
+      const res = await fetch("https://api.github.com/repos/So1uv/Leafit", { headers: { Accept: "application/vnd.github+json" } });
+      if (!res.ok) return null;
+      const x = await res.json();
+      const r = { at: Date.now(), stars: x.stargazers_count || 0, forks: x.forks_count || 0, issues: x.open_issues_count || 0, pushed: x.pushed_at };
+      try { sessionStorage.setItem(key, JSON.stringify(r)); } catch (e) {}
+      return r;
+    } catch (e) { return null; }
+  };
+  if (statsEl) {
+    const statsP = loadStats();
+    const go = () => statsP.then(r => { if (r) showStats(r); });
+    if ("IntersectionObserver" in window) {
+      const so = new IntersectionObserver(en => { if (en.some(x => x.isIntersecting)) { so.disconnect(); go(); } }, { rootMargin: "0px 0px -10% 0px" });
+      so.observe(statsEl.parentElement);
+    } else go();
+  }
+
+  const totop = $(".totop");
+  if (totop) {
+    const ring = $(".ring-p", totop);
+    let ticking = false;
+    const upd = () => {
+      ticking = false;
+      const max = document.documentElement.scrollHeight - innerHeight;
+      const p = max > 0 ? Math.min(1, scrollY / max) : 0;
+      ring.style.strokeDashoffset = (100 - p * 100).toFixed(2);
+      totop.classList.toggle("show", scrollY > 900);
+    };
+    addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(upd); } }, { passive: true });
+    addEventListener("resize", upd);
+    upd();
+    totop.addEventListener("click", () => { scrollTo({ top: 0, behavior: smooth() }); totop.blur(); });
+  }
+
+  $$("main section[id]").forEach(sec => {
+    const h = $("h2", sec);
+    if (!h || sec.id === "get") return;
+    const a = document.createElement("a");
+    a.className = "anchor";
+    a.href = "#" + sec.id;
+    a.textContent = "#";
+    a.setAttribute("aria-label", "Copy link to “" + h.textContent.trim() + "”");
+    a.addEventListener("click", e => {
+      e.preventDefault();
+      history.replaceState(null, "", "#" + sec.id);
+      copyText(pageUrl() + "#" + sec.id, "Link to this section copied");
+    });
+    h.append(" ", a);
+  });
+
+  let installEvt = null;
+  addEventListener("beforeinstallprompt", e => { installEvt = e; });
+  addEventListener("appinstalled", () => { installEvt = null; snack("Leafit site added to your apps"); });
+  if ("serviceWorker" in navigator && isSecureContext) {
+    addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+  }
+  addEventListener("offline", () => snack("You're offline. This page keeps working."));
+  addEventListener("online", () => snack("Back online"));
+
+  const leafRain = () => {
+    if (calm || $(".rain")) return;
+    const box = document.createElement("div");
+    box.className = "rain";
+    box.setAttribute("aria-hidden", "true");
+    const tones = ["var(--primary)", "var(--tertiary)", "var(--primary-c)", "var(--secondary)"];
+    let html = "";
+    for (let i = 0; i < 34; i++) {
+      const size = 16 + Math.random() * 22;
+      html += `<svg class="ic" style="left:${(Math.random() * 100).toFixed(1)}%;width:${size.toFixed(0)}px;height:${size.toFixed(0)}px;color:${tones[i % 4]};--dx:${(Math.random() * 160 - 80).toFixed(0)}px;--r:${(Math.random() * 720 - 360).toFixed(0)}deg;animation-duration:${(2.8 + Math.random() * 2).toFixed(2)}s;animation-delay:${(Math.random() * 1.4).toFixed(2)}s"><use href="#i-Eco"/></svg>`;
+    }
+    box.innerHTML = html;
+    document.body.append(box);
+    buzzy([8, 40, 8, 40, 14]);
+    snack("Your day, your rhythm");
+    setTimeout(() => box.remove(), 6500);
+  };
+  let taps = 0, tapTimer = 0;
+  $$(".bar .brand").forEach(b => b.addEventListener("click", () => {
+    taps++;
+    clearTimeout(tapTimer);
+    tapTimer = setTimeout(() => { taps = 0; }, 1600);
+    if (taps >= 5) { taps = 0; leafRain(); }
+  }));
+
+  const pal = $("#pal");
+  const keys = $("#keys");
+  if (pal) {
+    const input = $("input", pal);
+    const list = $(".pal-list", pal);
+    const goTo = el => {
+      closeSheet(pal);
+      setTimeout(() => {
+        if (el.id) history.replaceState(null, "", "#" + el.id);
+        el.scrollIntoView({ behavior: smooth(), block: "start" });
+      }, calm ? 0 : 140);
+    };
+    const apk = () => ($('[data-gh="apk"]') || {}).href;
+    const actions = [
+      { icon: () => (isDark() ? "LightMode" : "DarkMode"), title: () => (isDark() ? "Switch to light theme" : "Switch to dark theme"), kind: "T", words: "theme dark light mode night", run: () => setTheme(isDark() ? "light" : "dark", themeBtn) },
+      { icon: () => "FileDownload", title: () => "Download the latest APK", kind: "D", words: "download install apk get", run: () => { if (apk()) location.href = apk(); } },
+      { icon: () => "AwardStar", title: () => "What's new in this release", kind: "N", words: "changelog release notes update version new", run: () => openNews() },
+      { icon: () => "ContentCopy", title: () => "Copy link to this page", kind: "Action", words: "copy link url", run: () => copyText(pageUrl(), "Link copied") },
+      { icon: () => "Share", title: () => "Share Leafit", kind: "Action", words: "share send", run: () => { const sb = $("#share"); if (sb) sb.click(); } },
+      { icon: () => "KeyboardArrowUp", title: () => "Back to top", kind: "U", words: "top start up", run: () => scrollTo({ top: 0, behavior: smooth() }) },
+      { icon: () => "Keyboard", title: () => "Keyboard shortcuts", kind: "?", words: "keys keyboard help shortcuts", run: () => openSheet(keys) },
+      { icon: () => "Database", title: () => "Source code on GitHub", kind: "Link", words: "github code repo source open", run: () => { location.href = "https://github.com/So1uv/Leafit"; } },
+      { icon: () => "PhoneAndroid", title: () => "Add this site to your apps", kind: "Action", words: "install pwa app offline", when: () => !!installEvt, run: () => { if (installEvt) installEvt.prompt(); } },
+      { icon: () => "Eco", title: () => "Let it rain leaves", kind: "Fun", words: "leaf leaves rain fun", secret: true, run: () => leafRain() }
+    ];
+    const sections = $$("main section[id]").map(sec => {
+      const h = $("h2", sec);
+      if (!h) return null;
+      const k = $(".kicker", sec);
+      const title = h.textContent.replace(/\s*#\s*$/, "").trim();
+      return { icon: () => "ChevronRight", title: () => title, sub: k ? k.textContent.trim() : "", kind: "Section", words: sec.id, run: () => goTo(sec) };
+    }).filter(Boolean);
+    const faqs = $$("#faq details").map(d => {
+      const q = $("summary", d).textContent.trim();
+      const a = $("p", d);
+      return { icon: () => "Info", title: () => q, sub: "Questions", kind: "FAQ", words: a ? a.textContent : "", run: () => { d.open = true; goTo(d); } };
+    });
+    const all = [...actions, ...sections, ...faqs];
+    let shown = [], active = 0;
+    const score = (it, q) => {
+      const t = it.title().toLowerCase();
+      const hay = (t + " " + (it.sub || "") + " " + (it.words || "")).toLowerCase();
+      const terms = q.split(/\s+/).filter(Boolean);
+      if (!terms.every(w => hay.includes(w))) return 0;
+      let sc = 1;
+      if (t.startsWith(q)) sc += 6;
+      terms.forEach(w => { if (t.includes(w)) sc += 2; if (new RegExp("\\b" + w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).test(t)) sc += 2; });
+      return sc;
+    };
+    const mark = (text, q) => {
+      const safe = esc(text);
+      const terms = q.split(/\s+/).filter(w => w.length > 1).map(w => esc(w).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+      return terms.length ? safe.replace(new RegExp("(" + terms.join("|") + ")", "gi"), "<mark>$1</mark>") : safe;
+    };
+    const setActive = i => {
+      if (!shown.length) return;
+      active = (i + shown.length) % shown.length;
+      $$("li", list).forEach((li, n) => li.setAttribute("aria-selected", n === active));
+      const cur = list.children[active];
+      if (cur) { input.setAttribute("aria-activedescendant", cur.id); cur.scrollIntoView({ block: "nearest" }); }
+    };
+    const render = () => {
+      const q = input.value.trim().toLowerCase();
+      const pool = all.filter(it => (!it.when || it.when()) && (!it.secret || q.length >= 3));
+      shown = q ? pool.map(it => [it, score(it, q)]).filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]).map(x => x[0]).slice(0, 12) : pool.filter(it => !it.secret).slice(0, 30);
+      list.innerHTML = shown.length ? shown.map((it, i) => {
+        const k = it.kind.length === 1 ? `<kbd>${esc(it.kind)}</kbd>` : `<span class="pal-k">${esc(it.kind)}</span>`;
+        return `<li role="option" id="pal-o${i}" aria-selected="false"><span class="pal-ic">${icon(it.icon())}</span><span class="pal-t"><b>${mark(it.title(), q)}</b>${it.sub ? `<small>${esc(it.sub)}</small>` : ""}</span>${k}</li>`;
+      }).join("") : '<li class="pal-none" aria-disabled="true">Nothing here. Try “sleep”, “GPS” or “dark”.</li>';
+      setActive(0);
+    };
+    const run = i => {
+      const it = shown[i];
+      if (!it) return;
+      if (it.kind === "Section" || it.kind === "FAQ") { it.run(); return; }
+      closeSheet(pal);
+      setTimeout(() => it.run(), calm ? 0 : 160);
+    };
+    input.addEventListener("input", render);
+    input.addEventListener("keydown", e => {
+      if (e.key === "ArrowDown") { e.preventDefault(); setActive(active + 1); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); setActive(active - 1); }
+      else if (e.key === "Enter") { e.preventDefault(); run(active); }
+    });
+    list.addEventListener("pointermove", e => { const li = e.target.closest("li[role=option]"); if (li) { const i = [...list.children].indexOf(li); if (i !== active) setActive(i); } });
+    list.addEventListener("click", e => { const li = e.target.closest("li[role=option]"); if (li) run([...list.children].indexOf(li)); });
+    const openPal = () => {
+      input.value = "";
+      render();
+      openSheet(pal);
+      setTimeout(() => input.focus(), 30);
+    };
+    const findBtn = $("#find");
+    if (findBtn) findBtn.addEventListener("click", openPal);
+
+    addEventListener("keydown", e => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        if (pal.open) closeSheet(pal); else openPal();
+        return;
+      }
+      if (e.ctrlKey || e.metaKey || e.altKey || e.defaultPrevented || typing(document.activeElement)) return;
+      if ($("dialog[open]")) return;
+      const k = e.key;
+      const jump = id => { const el = $(id); if (el) el.scrollIntoView({ behavior: smooth(), block: "start" }); };
+      if (k === "/") { e.preventDefault(); openPal(); }
+      else if (k === "?") { e.preventDefault(); openSheet(keys); }
+      else if (k === "t" || k === "T") setTheme(isDark() ? "light" : "dark", themeBtn);
+      else if (k === "d" || k === "D") { if (apk()) location.href = apk(); }
+      else if (k === "n" || k === "N") openNews();
+      else if (k === "s" || k === "S") jump("#gallery");
+      else if (k === "q" || k === "Q") jump("#faq");
+      else if (k === "u" || k === "U") scrollTo({ top: 0, behavior: smooth() });
+    });
   }
 })();
