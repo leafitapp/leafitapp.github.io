@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://leafitapp.github.io/sitemap.xml
