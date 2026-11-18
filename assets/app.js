@@ -610,7 +610,7 @@
         });
       });
     }, { rootMargin: "80px 0px" });
-    $$(".hero, .get, .live, #spaces, .numbers, .marquee").forEach(el => pauser.observe(el));
+    $$(".hero, .get, .live, #spaces, .numbers, .marquee, .glass").forEach(el => pauser.observe(el));
   }
 
   const targets = $$(".num, .act, .card, .tile, .formula, .private, .design, .live, details, .get, .head, .qr");
