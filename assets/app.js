@@ -627,7 +627,7 @@
         });
       });
     }, { rootMargin: "80px 0px" });
-    $$("main > section, .marquee, .glass, .jar, .foot").forEach(el => pauser.observe(el));
+    $$("main > section, .marquee, .jar, .foot").forEach(el => pauser.observe(el));
   }
 
   const targets = $$(".num, .act, .card, .tile, .formula, .private, .design, .live, details:not(.langs), .get, .head, .qr, .calc");
@@ -736,7 +736,7 @@
       const bmr = 10 * w + 6.25 * h - 5 * a + (sex === "male" ? 5 : sex === "female" ? -161 : -78);
       tweenNum(outK, Math.max(0, Math.round(bmr * 1.2)), fmtInt);
       const bmi = w / Math.pow(h / 100, 2);
-      outB.textContent = t("BMI") + " " + bmi.toFixed(1) + ", " + t(cats.find(x => bmi < x[0])[1]) + ". " + t("Resting estimate × 1.2, the same as in your profile.");
+      outB.textContent = t("BMI") + " " + bmi.toFixed(1) + ", " + t(cats.find(x => bmi < x[0])[1]) + ".";
     };
     const pick = $$(".pick button", kcalBox);
     pick.forEach(b => b.addEventListener("click", () => {
