@@ -206,12 +206,17 @@
       clearTimeout(idleT);
       idleT = setTimeout(() => progressWave.setAmp(p > 0.995 ? 0 : 0.35), 650);
       const heroEnd = hero.offsetTop + hero.offsetHeight - 120;
-      clearTimeout(dockT);
-      if (y < heroEnd || p > 0.985) dock.classList.toggle("show", y >= heroEnd);
-      else if (dy > 6) {
+      if (y < heroEnd || p > 0.985) {
+        clearTimeout(dockT);
+        dock.classList.toggle("show", y >= heroEnd);
+      } else if (dy > 6) {
+        clearTimeout(dockT);
         dock.classList.remove("show");
-        dockT = setTimeout(() => { if (scrollY >= heroEnd) dock.classList.add("show"); }, 900);
-      } else if (dy < -6) dock.classList.add("show");
+        dockT = setTimeout(() => { if (scrollY >= hero.offsetTop + hero.offsetHeight - 120) dock.classList.add("show"); }, 900);
+      } else if (dy < -6) {
+        clearTimeout(dockT);
+        dock.classList.add("show");
+      }
       let active = "";
       for (const s of spyTargets) if (s.getBoundingClientRect().top <= innerHeight * 0.38) active = s.id;
       if (p > 0.985) active = "get";
@@ -559,7 +564,8 @@
     });
   }
 
-  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const ua = navigator.userAgent;
+  const ios = !/Android/i.test(ua) && (/iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1 && /Safari/.test(ua) && !/Chrome|Chromium|Edg/.test(ua)));
   if (ios) { const n = $(".ios-note"); if (n) n.hidden = false; }
 
   const targets = $$(".num, .act, .card, .tile, .formula, .private, .design, .live, details, .get, .head, .qr");
