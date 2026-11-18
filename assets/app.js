@@ -252,9 +252,10 @@
     const end = () => s.classList.add("out");
     el.addEventListener("pointerup", end, { once: true });
     el.addEventListener("pointerleave", end, { once: true });
+    el.addEventListener("pointercancel", end, { once: true });
     setTimeout(() => s.remove(), 1400);
   };
-  if (!calm) $$(".btn, .icon-btn, .seg button, .tabs button, .chip-new, summary, .nav a, .list-mock li, .dock a").forEach(el => el.addEventListener("pointerdown", ripple));
+  if (!calm) $$(".btn, .icon-btn, .seg button, .tabs button, .chip-new, summary, .nav a, .list-mock li").forEach(el => el.addEventListener("pointerdown", ripple));
 
   const strip = $(".tabs");
   const ind = $(".ind", strip);
@@ -314,7 +315,7 @@
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => moveInd(tabs[curTab], true));
   moveInd(tabs[0], true);
   let sx = 0, sy = 0, sw = false;
-  panelsWrap.addEventListener("touchstart", e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; sw = true; }, { passive: true });
+  panelsWrap.addEventListener("touchstart", e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; sw = !e.target.closest(".trio"); }, { passive: true });
   panelsWrap.addEventListener("touchend", e => {
     if (!sw) return;
     sw = false;
@@ -462,6 +463,30 @@
     img.addEventListener("error", done, { once: true });
   });
 
+  const carousels = $$(".trio, .acts, .trip, .facts4");
+  carousels.forEach(c => {
+    const items = [...c.children];
+    if (items.length < 2) return;
+    const dots = document.createElement("div");
+    dots.className = "cdots";
+    dots.setAttribute("aria-hidden", "true");
+    dots.innerHTML = items.map(() => "<i></i>").join("");
+    c.after(dots);
+    const marks = [...dots.children];
+    let last = -1;
+    const update = () => {
+      if (c.scrollWidth <= c.clientWidth + 2) return;
+      const mid = c.scrollLeft + c.clientWidth / 2;
+      let best = 0, bestD = Infinity;
+      items.forEach((it, i) => { const d = Math.abs(it.offsetLeft + it.offsetWidth / 2 - mid); if (d < bestD) { bestD = d; best = i; } });
+      if (best !== last) { last = best; marks.forEach((m, i) => m.classList.toggle("on", i === best)); }
+    };
+    c.addEventListener("scroll", () => requestAnimationFrame(update), { passive: true });
+    addEventListener("resize", update);
+    update();
+    marks[0].classList.add("on");
+  });
+
   const box = $("#lightbox");
   const boxImg = $("img", box);
   const boxCap = $(".lb-cap", box);
@@ -585,7 +610,7 @@
         });
       });
     }, { rootMargin: "80px 0px" });
-    $$(".hero, .get, .live, #spaces, .numbers").forEach(el => pauser.observe(el));
+    $$(".hero, .get, .live, #spaces, .numbers, .marquee").forEach(el => pauser.observe(el));
   }
 
   const targets = $$(".num, .act, .card, .tile, .formula, .private, .design, .live, details, .get, .head, .qr");
