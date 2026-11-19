@@ -10,7 +10,7 @@ SITE = "https://leafitapp.github.io/"
 ATTRS = ("alt", "aria-label", "placeholder", "title")
 META = {"description", "og:title", "og:description", "og:image:alt", "twitter:title", "twitter:description"}
 LETTER = re.compile(r"[A-Za-z]")
-SKIP = {"Leafit", "Leafit 2.5.0", "GitHub", "Ko-fi", "APK", "GPS", "Esc", "Enter", "Ctrl", "Soluv", "Google Fit", "Samsung Health", "Sleep as Android", "PB", "English", "Українська", "Русский", "OpenStreetMap", "BMI", "Wrapped", "Leafit Wrapped", "Leafit Relay", "Ctrl K"}
+SKIP = {"Leafit", "Leafit 2.5.0", "GitHub", "Ko-fi", "APK", "GPS", "Esc", "Enter", "Ctrl", "Soluv", "Google Fit", "Samsung Health", "Sleep as Android", "PB", "English", "Українська", "Русский", "OpenStreetMap", "Obtainium", "BMI", "Wrapped", "Leafit Wrapped", "Leafit Relay", "Ctrl K"}
 
 
 def load(lang):
