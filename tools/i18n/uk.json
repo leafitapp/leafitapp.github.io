@@ -648,7 +648,9 @@
 "18.4 km": "18,4 км",
 "1:02:15 · 17.8 km/h": "1:02:15 · 17,8 км/год",
 "Leafit keeps everything in a local database. There is no Leafit account and no server behind the app, so there is simply nowhere for your data to go. Sharing a card is always something you do on purpose.": "Leafit зберігає все в локальній базі даних. Акаунта Leafit і сервера за застосунком немає, тож вашим даним просто нікуди йти. Поділитися карткою можна тільки свідомо.",
-"Pick one of seven activities and one of 50 subtypes, from trail running and Nordic walking to Vinyasa yoga and table tennis. Outdoors, switch on route recording and follow the session live on OpenStreetMap.": "Оберіть один із семи видів і один із 50 підтипів: від трейлу й скандинавської ходьби до віньяса-йоги й настільного тенісу. Надворі ввімкніть запис маршруту й стежте за заняттям наживо на OpenStreetMap."
+"Pick one of seven activities and one of 50 subtypes, from trail running and Nordic walking to Vinyasa yoga and table tennis. Outdoors, switch on route recording and follow the session live on OpenStreetMap.": "Оберіть один із семи видів і один із 50 підтипів: від трейлу й скандинавської ходьби до віньяса-йоги й настільного тенісу. Надворі ввімкніть запис маршруту й стежте за заняттям наживо на OpenStreetMap.",
+"Obtainium installs Leafit from GitHub Releases and keeps it updated for you.": "Obtainium встановлює Leafit із GitHub Releases і сам оновлює його.",
+"Get it on Obtainium": "Завантажити з Obtainium"
 },
 "js": {
 "Released": "Реліз",
